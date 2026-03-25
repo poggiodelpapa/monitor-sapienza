@@ -2,14 +2,8 @@ name: Monitora Pagina Sapienza
 
 on:
   schedule:
-    - cron: "0 * * * *"
-  workflow_dispatch:
-    inputs:
-      force_email:
-        description: 'Forza invio email di test (anche se non è cambiato nulla)'
-        required: false
-        default: 'false'
-        type: boolean
+    - cron: "0 * * * *"     # ogni ora (puoi cambiarlo, es. ogni 6 ore: "0 */6 * * *")
+  workflow_dispatch:        # permette di lanciare manualmente se serve
 
 jobs:
   check:
@@ -23,7 +17,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Ripristina Cache
+      - name: Ripristina Cache (last_hash)
         uses: actions/cache/restore@v4
         with:
           path: last_hash.txt
@@ -37,10 +31,9 @@ jobs:
           EMAIL_MITTENTE: ${{ secrets.EMAIL_MITTENTE }}
           EMAIL_DESTINATARIO: ${{ secrets.EMAIL_DESTINATARIO }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          FORCE_EMAIL: ${{ inputs.force_email || 'false' }}
         run: python monitor.py
 
-      - name: Salva Cache
+      - name: Salva Cache (last_hash)
         uses: actions/cache/save@v4
         if: always()
         with:
