@@ -21,8 +21,8 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: last_hash.txt
-          key: sapienza-hash-${{ github.run_id }}
-          restore-keys: sapienza-hash-
+          key: hash-${{ github.run_id }}
+          restore-keys: hash-
 
       - name: Installa dipendenze
         run: pip install requests beautifulsoup4
@@ -32,7 +32,7 @@ jobs:
           EMAIL_MITTENTE: ${{ secrets.EMAIL_MITTENTE }}
           EMAIL_DESTINATARIO: ${{ secrets.EMAIL_DESTINATARIO }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          FORCE_EMAIL: "true" # Questo farà partire l'email ora
+          FORCE_EMAIL: "true"
         run: python monitor.py
 
       - name: Salva Cache
@@ -40,4 +40,4 @@ jobs:
         if: always()
         with:
           path: last_hash.txt
-          key: sapienza-hash-${{ github.run_id }}
+          key: hash-${{ github.run_id }}
