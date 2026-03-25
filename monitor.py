@@ -11,21 +11,22 @@ from bs4 import BeautifulSoup
 URL = "https://www.uniroma1.it/it/node/40540"
 HASH_FILE = "last_hash.txt"
 
-# Configurazione email (da impostare come secrets in GitHub)
-EMAIL_MITTENTE = os.environ["EMAIL_MITTENTE"]   # es. tuoemail@gmail.com
-EMAIL_DESTINATARIO = os.environ["EMAIL_DESTINATARIO"]  # es. tuoemail@gmail.com
-GMAIL_APP_PASSWORD = os.environ["GMAIL_APP_PASSWORD"]  # App Password Gmail
+# Configurazione email
+EMAIL_MITTENTE = os.environ.get("EMAIL_MITTENTE")
+EMAIL_DESTINATARIO = os.environ.get("EMAIL_DESTINATARIO")
+GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
+
+# Leggiamo la forzatura: se "true", consideriamo il flag attivo
+FORCE_EMAIL = os.environ.get("FORCE_EMAIL", "false").lower() == "true"
 
 
 def get_page_content(url: str) -> str:
-    """Scarica la pagina e restituisce il testo rilevante (senza header/footer)."""
+    """Scarica la pagina e restituisce il testo rilevante."""
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(url, headers=headers, timeout=30)
     response.raise_for_status()
 
     soup = BeautifulSoup(response.text, "html.parser")
-
-    # Prende il contenuto principale della pagina (più robusto di prendere tutto l'HTML)
     main = soup.find("main") or soup.find("article") or soup.find("body")
     return main.get_text(separator="\n", strip=True) if main else response.text
 
@@ -46,11 +47,18 @@ def save_hash(hash_value: str):
         f.write(hash_value)
 
 
-def send_email(url: str):
+def send_email(url: str, is_forced: bool = False):
     subject = "⚠️ Cambiamento rilevato nella pagina Sapienza"
+    
+    # Rinominiamo l'oggetto se è un test forzato
+    if is_forced:
+        subject = "🧪 TEST (FORCE_EMAIL): Monitoraggio Sapienza"
+
+    body_intro = "Questo è un test forzato dell'email." if is_forced else "È stato rilevato un cambiamento nella pagina monitorata:"
+
     body = f"""Ciao,
 
-È stato rilevato un cambiamento nella pagina monitorata:
+{body_intro}
 
 🔗 {url}
 
@@ -81,12 +89,19 @@ def main():
     print(f"Hash attuale:   {current_hash}")
     print(f"Hash precedente: {last_hash}")
 
+    # Logica per l'email di test
+    if FORCE_EMAIL:
+        print("FORZATURA ATTIVA: Invio email di test a prescindere dall'hash.")
+        send_email(URL, is_forced=True)
+
+    # Logica di monitoraggio standard
     if last_hash is None:
-        print("Prima esecuzione: salvo hash iniziale, nessuna email inviata.")
+        print("Prima esecuzione: salvo hash iniziale.")
         save_hash(current_hash)
     elif current_hash != last_hash:
-        print("⚠️  Cambiamento rilevato! Invio email...")
-        send_email(URL)
+        print("⚠️ Cambiamento rilevato!")
+        if not FORCE_EMAIL:  # Evita di inviare l'email due volte se l'avevi già forzata sopra
+            send_email(URL)
         save_hash(current_hash)
     else:
         print("✅ Nessun cambiamento.")
