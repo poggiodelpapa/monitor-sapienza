@@ -1,7 +1,6 @@
 <p align="center">
   <img src="logo.png" alt="Sherlock Bands" width="300"/>
   <br>
-  <br>
   <h1 align="center">🔔 Sherlock Bands</h1>
 </p>
 <br>
