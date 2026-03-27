@@ -3,6 +3,7 @@
   <h1>🔔 Sherlock Bands</h1>
 </div>
 
+
 A lightweight GitHub Actions bot that watches a university web page for changes and sends an email notification with a **visual diff** of what changed.
 
 Built to never miss updates on admission rankings at [Sapienza University of Rome](https://www.uniroma1.it/it/node/40540).
