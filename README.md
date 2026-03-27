@@ -51,6 +51,9 @@ Every hour → fetch page → hash content → compare with last run
 ## Setup
 
 ### 1. Fork or clone this repo
+```python
+git clone https://github.com/poggiodelpapa/sherlock-bands
+```
 
 ### 2. Configure Gmail
 
